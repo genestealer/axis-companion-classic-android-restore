@@ -143,6 +143,28 @@ Always pass `-s <serial>` so commands go to the right device.
 - **Getting back to the Sites list:** with only one site and a saved password, the app skips the Sites list and opens the cameras directly. Press Back to reach the Sites list.
 - **Importing again:** delete the old site first (long-press it in the Sites list), or you'll get two copies.
 
+## Windows desktop app
+The Windows app keeps its site in `C:\ProgramData\Axis Communications\AXIS Companion\ApplicationSiteSettings.xml`, so reinstalling the phone app doesn't affect it. If you lose the site on Windows too, you don't need to rebuild those XML files by hand.
+
+The desktop app (checked in version 3.80) has its own **Import site** and **Export site** commands. They use the same `.accs` format ("AXIS Companion Classic Site (*.accs)"), so the [example.accs](example.accs) layout and the file from [make_accs.py](make_accs.py) should work for both apps.
+
+The login screen still shows **Create new site** and **Import site** links under the LOG IN button, so the desktop app looks able to set up sites without the cloud. Neither has been tested since the shutdown.
+
+- **Import site** creates a site from a `.accs` file. Not tested yet.
+- **Export site** writes a `.accs` file from a working site. Use it to make a file for the phone or a spare copy. The app refuses to export a site that has a remote (tunnelled) camera.
+- **Back up** `C:\ProgramData\Axis Communications\AXIS Companion\` before trying either.
+
+## The site password
+The site password isn't stored in the `.accs` file or in the Windows XML files. It lives on the cameras:
+- When you create a site, AXIS Companion Classic adds a user called **`ACCAdmin`** to each camera, with the site password as its password.
+- The apps sign in to each camera as `ACCAdmin` with whatever password you type. That's why the import never asks for it; the app asks the first time you open the site.
+- You can check the password by opening a camera's web page and signing in as `ACCAdmin`. If the site has no password, the app uses `pass`.
+- **If you lose the site password, the cameras must be reset to factory defaults.** Keep it in a password manager.
+
+The password doesn't encrypt or unlock any of the files. It's only the camera login. The apps can remember it so you don't retype it:
+- **Windows:** with "Remember password" ticked, it's saved in `%LOCALAPPDATA%\Axis Communications\AXIS Companion\UserSiteSettings.xml`, encrypted with Windows DPAPI. Only the same Windows user on the same PC can read it, so copying the file to another PC doesn't carry the password over.
+- **Android:** it's saved in the app's private storage and lost if you clear storage.
+
 ## Remote access over a VPN or Tailscale
 The imported site connects straight to the cameras' local IP addresses. If the phone can reach those addresses, the app works, wherever you are. Any tunnel that puts the phone on your home network will do:
 - **Tailscale:** run a [subnet router](https://tailscale.com/kb/1019/subnets) on an always-on device at home (a NAS, Raspberry Pi or PC) and advertise the camera subnet, e.g. `192.168.1.0/24`. Approve the route in the Tailscale admin console and turn on the Tailscale app on the phone. The cameras can't run Tailscale themselves, so the subnet router is needed.
@@ -202,7 +224,10 @@ Yes, over a VPN or Tailscale. See [Remote access](#remote-access-over-a-vpn-or-t
 Not tested. This guide only covers Android.
 
 **What is the site password?**
-The password the Windows desktop app set on the cameras when you created the site. The import doesn't include it; the app asks the first time you open the site.
+The password of the `ACCAdmin` user that AXIS Companion Classic created on each camera. It isn't in the `.accs` file; the app asks the first time you open the site. See [The site password](#the-site-password).
+
+**Does the same file work in the Windows app?**
+It should. The Windows app has Import site and Export site commands that use the same `.accs` format. See [Windows desktop app](#windows-desktop-app).
 
 ## Disclaimer
 Not affiliated with or endorsed by Axis Communications. AXIS, AXIS Companion and AXIS Camera Station are trademarks of Axis AB. Use at your own risk. This only uses features already in the app.
