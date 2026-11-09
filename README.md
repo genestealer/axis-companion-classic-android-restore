@@ -1,11 +1,27 @@
-# Restoring an AXIS Companion Classic site on Android without the cloud
+# Restoring an AXIS Companion Classic (version 3) site on Android without the cloud
 
 If you've cleared storage on (or reinstalled) the **AXIS Companion Classic** Android app, your site and cameras are gone from the phone. Axis has switched off the Companion cloud login, so the app can't download the site again and the **+** button only shows "Can't create site".
 
 This repo shows how to get your cameras back into the app using its hidden **local site import** (`.accs` file). It works without an Axis account or internet access.
 
+## Which AXIS Companion is this about?
+Axis has used the "Companion" name for two different systems. **This guide is only about AXIS Companion Classic, also called AXIS Companion version 3 or V3**, the one that can record to your own NAS.
+
+| | **AXIS Companion Classic / version 3** (this guide) | AXIS Companion version 4, now **AXIS Camera Station Edge** |
+|---|---|---|
+| Recording to your own (3rd-party) NAS or network share | **Yes** | No |
+| Recording to Axis SD cards or AXIS S3008/S30 recorders | SD cards yes, S3008 no | Yes |
+| Camera firmware | 5.5 and later | 8.4 and later (5.5 and later with an S3008) |
+| Axis remote access (cloud) | Ended: for cameras added after 31 March 2023, then for all cameras on 31 December 2024 | Yes |
+| Windows app | AXIS Companion 3.x (latest 3.80) | AXIS Camera Station Edge |
+| Android app | **AXIS Companion Classic** (`com.axis.acc`) | AXIS Camera Station Edge (`com.axis.companion`) |
+
+Sources: [NetcamCenter: Remote access AXIS Camera Companion Classic](https://netcamcenter.com/en/remote-access-companion-classic-versie-3-2), [Axis: AXIS Companion Classic support](https://www.axis.com/products/axis-companion-classic/support), [Axis: AXIS Camera Station Edge](https://www.axis.com/products/axis-camera-station-edge).
+
+Wherever this guide says "AXIS Companion" or "the app", it means version 3 / Classic.
+
 ## Background
-I have 13 Axis cameras that record to a NAS on my home network, viewed with AXIS Companion Classic on Windows and Android. I cleared the Android app's storage and reinstalled it, and my site was gone. With the cloud switched off there was no way to sign in and download it again, and the app wouldn't let me create a new site.
+I have 13 Axis cameras that record to a NAS on my home network, viewed with AXIS Companion Classic (version 3) on Windows and Android. I cleared the Android app's storage and reinstalled it, and my site was gone. With the cloud switched off there was no way to sign in and download it again, and the app wouldn't let me create a new site.
 
 I didn't want to move to AXIS Camera Station Edge because I'd lose recording to the NAS (see below). So I decompiled the app and found it can still import a site from a small text file. I built that file from the Windows app's camera list, imported it, and the phone showed all 13 cameras again with working live view.
 
@@ -15,13 +31,13 @@ I didn't want to move to AXIS Camera Station Edge because I'd lose recording to 
 3. Open it in AXIS Companion Classic (from the Files app, or with the adb command below).
 4. Tap **Local site** in the app and enter your site password.
 
-## Why not just move to AXIS Camera Station Edge?
-Axis wants Companion users to move to [AXIS Camera Station Edge](https://www.axis.com/products/axis-camera-station-edge). Its product page lists three ways to record:
+## Why not just move to AXIS Camera Station Edge (Companion version 4)?
+Axis wants Companion Classic users to move to [AXIS Camera Station Edge](https://www.axis.com/products/axis-camera-station-edge), which used to be called AXIS Companion version 4. Its product page lists three ways to record:
 - an Axis SD card in each camera
 - an AXIS S30 recorder
 - AXIS Camera Station Cloud Storage
 
-**Recording to your own NAS or network share isn't listed.** If your cameras record to a NAS and you want to keep it that way, staying on Companion Classic for local viewing is the option left. This guide keeps the phone app working on the home network (or remotely over a VPN).
+**Recording to your own NAS or network share isn't listed.** NetcamCenter, an Axis partner, says the same: version 4 only supports Axis SD cards and the AXIS S3008 recorder. If your cameras record to a NAS and you want to keep it that way, staying on Companion Classic (version 3) is the option left. This guide keeps the phone app working on the home network (or remotely over a VPN).
 
 ## What you get
 - The Android app shows **"Local site – N cameras"** and live view works after you enter the site password.
