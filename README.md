@@ -206,3 +206,6 @@ The password the Windows desktop app set on the cameras when you created the sit
 
 ## Disclaimer
 Not affiliated with or endorsed by Axis Communications. AXIS, AXIS Companion and AXIS Camera Station are trademarks of Axis AB. Use at your own risk. This only uses features already in the app.
+
+## Licence
+[MIT](LICENSE). Free to use, change and share, including the guide.
