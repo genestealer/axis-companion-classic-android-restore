@@ -1,76 +1,78 @@
 # Restoring an AXIS Companion Classic (version 3) site on Android without the cloud
 
-If you've cleared storage on (or reinstalled) the **AXIS Companion Classic** Android app, your site and cameras are gone from the phone. Axis has switched off the Companion cloud login, so the app can't download the site again and the **+** button only shows "Can't create site".
+If you've cleared the storage of the **AXIS Companion Classic** Android app, or reinstalled it, your cameras will have disappeared from the app. (The app calls your group of cameras a "site".) Axis has switched off its online login for Companion Classic, so the app can't download them again. Tapping **+** only shows "Can't create site".
 
-This repo shows how to get your cameras back into the app using its hidden **local site import** (`.accs` file). It works without an Axis account or internet access.
+This guide shows how to put your cameras back into the app. The app has a hidden way to load a list of cameras from a small text file (a `.accs` file). You don't need an Axis account or an internet connection.
 
 ## Which AXIS Companion is this about?
-Axis has used the "Companion" name for two different systems. **This guide is only about AXIS Companion Classic, also called AXIS Companion version 3 or V3**, the one that can record to your own NAS.
+Axis has used the name "Companion" for two different products. **This guide is only about AXIS Companion Classic, also called AXIS Companion version 3 or V3.** That's the version that can record to your own NAS (network attached storage: a storage box on your home network).
 
 | | **AXIS Companion Classic / version 3** (this guide) | AXIS Companion version 4, now **AXIS Camera Station Edge** |
 |---|---|---|
 | Recording to your own (3rd-party) NAS or network share | **Yes** ("selected third-party NAS devices") | **No** ("No third-party NAS support") |
 | Other recording options | Axis SD card, AXIS Companion Recorder, AXIS S3008 (from 3.70.1, offline only, no mobile app) | AXIS Surveillance Card, AXIS Companion Recorder, AXIS S30 and S40 recorders, AXIS Camera Station Cloud Storage |
-| Camera firmware (AXIS OS) | 5.50 and later | 8.40 and later. Older cameras only with limits, and every camera must be factory reset first |
-| Internet and My Axis account | Not required | Required for setup and management |
-| Axis remote access (cloud) | Ended: for cameras added after 31 March 2023, then for all cameras on 31 December 2024 | Yes |
+| Camera firmware (AXIS OS) | 5.50 or newer | 8.40 or newer. Older cameras only work with limits, and every camera must be factory reset first |
+| Internet connection and My Axis account | Not needed | Needed to set up and manage the system |
+| Viewing from outside the home through Axis's servers | Stopped: for cameras added after 31 March 2023, then for all cameras on 31 December 2024 | Yes |
 | Windows app | AXIS Companion 3.x (latest 3.80) | AXIS Camera Station Edge |
 | Android app | **AXIS Companion Classic** (`com.axis.acc`) | AXIS Camera Station Edge (`com.axis.companion`) |
 
 Sources: [Axis: requirements for upgrading from Companion Classic](https://help.axis.com/en-us/axis-camera-station-edge#requirements), [Axis FAQ: Secure Remote Access discontinued](https://faq.axis.com/s/article/vms-axis-secure-remote-access-service-discontinued?language=en_US), Axis's "AXIS S3008 support in AXIS Companion Classic (Version 3)" disclaimer (April 2022, on the [Companion Classic support page](https://www.axis.com/products/axis-companion-classic/support)), [NetcamCenter: Remote access AXIS Camera Companion Classic](https://netcamcenter.com/en/remote-access-companion-classic-versie-3-2).
 
-Wherever this guide says "AXIS Companion" or "the app", it means version 3 / Classic.
+In this guide, "AXIS Companion" and "the app" always mean version 3 (Classic).
 
 ## What Axis says about Companion Classic
-From Axis's FAQ, ["I use AXIS Companion Classic. What does it mean for me when the Axis Secure Remote Access service is discontinued?"](https://faq.axis.com/s/article/vms-axis-secure-remote-access-service-discontinued?language=en_US):
+Axis's own FAQ, ["I use AXIS Companion Classic. What does it mean for me when the Axis Secure Remote Access service is discontinued?"](https://faq.axis.com/s/article/vms-axis-secure-remote-access-service-discontinued?language=en_US):
 
 > When the Axis Secure Remote Access service is discontinued, you no longer have access to the cameras remotely, only on premises. If you need remote access after December 31, 2024, we recommend that you migrate to AXIS Camera Station Edge. [...] AXIS Companion Classic will continue to be supported on premises in offline scenarios after December 31, 2024.
 
-So using Companion Classic locally, as this guide does, is still a supported setup. Only Axis's cloud remote access has gone.
+In other words, Axis still supports using Companion Classic at home, which is what this guide does. The only thing that has gone is viewing your cameras from outside the home through Axis's servers.
 
-## Background
-I have 13 Axis cameras that record to a NAS on my home network, viewed with AXIS Companion Classic (version 3) on Windows and Android. I cleared the Android app's storage and reinstalled it, and my site was gone. With the cloud switched off there was no way to sign in and download it again, and the app wouldn't let me create a new site.
+## Why I wrote this
+I have 13 Axis cameras that record to a NAS at home. I watch them with AXIS Companion Classic on Windows and Android. I cleared the Android app's storage, and my cameras disappeared from it. Axis had switched off its online service, so there was no way to sign in and get them back, and the app wouldn't let me set them up again.
 
-I didn't want to move to AXIS Camera Station Edge. I'm a home user, not a business: my cameras are older models and they record to my own NAS. Edge doesn't support third-party NAS storage at all, and moving would mean factory-resetting every camera, buying Axis SD cards or an Axis recorder, and depending on an Axis account and internet connection (see below). So I decompiled the app and found it can still import a site from a small text file. I built that file from the Windows app's camera list, imported it, and the phone showed all 13 cameras again with working live view.
+I didn't want to move to AXIS Camera Station Edge. I'm a home user, not a business. My cameras are older models and they record to my own NAS. Edge can't record to a NAS at all. Moving would also mean resetting every camera, buying Axis memory cards or an Axis recorder and relying on an Axis account and an internet connection (see below).
+
+So I looked inside the app's code and found it can still load a list of cameras from a small text file. I made that file from the camera list in the Windows app and loaded it into the phone. All 13 cameras came back, with live video working.
 
 ## Quick steps
-1. Make a `.accs` file listing your cameras: run [make_accs.py](make_accs.py) on a PC that has the Windows desktop app, or write it by hand.
-2. Copy it to the phone's **Downloads** folder.
-3. Open it in AXIS Companion Classic (from the Files app, or with the adb command below).
-4. Tap **Local site** in the app and enter your site password.
+1. Make a `.accs` file that lists your cameras. Either run [make_accs.py](make_accs.py) on a PC with the Windows app, or write the file yourself.
+2. Copy the file to the phone's **Downloads** folder.
+3. Open the file in AXIS Companion Classic, either from the phone's Files app or from a PC (see below).
+4. In the app, tap **Local site** and enter your site password.
 
 ## Why not just move to AXIS Camera Station Edge (Companion version 4)?
-Axis wants Companion Classic users to move to [AXIS Camera Station Edge](https://www.axis.com/products/axis-camera-station-edge), which used to be called AXIS Companion version 4. Its product page lists three ways to record:
-- an Axis SD card in each camera
+Axis wants Companion Classic users to move to [AXIS Camera Station Edge](https://www.axis.com/products/axis-camera-station-edge), which used to be called AXIS Companion version 4. Its product page gives three places to record to:
+- an Axis memory card (SD card) in each camera
 - an AXIS S30 recorder
-- AXIS Camera Station Cloud Storage
+- AXIS Camera Station Cloud Storage (a paid online service)
 
-**Recording to your own NAS or network share isn't listed.** Axis's own [upgrade requirements](https://help.axis.com/en-us/axis-camera-station-edge#requirements) say it plainly: "No third-party NAS support". Moving also means:
-- **factory-resetting every camera** ("Any device that was used in AXIS Companion Classic must be hard reset")
-- cameras on **AXIS OS 8.40 or later**; Classic works with 5.50 and later
-- a **My Axis account and internet access** for setup and management
+**Your own NAS isn't one of them.** Axis's [upgrade requirements](https://help.axis.com/en-us/axis-camera-station-edge#requirements) say it plainly: "No third-party NAS support". Moving would also mean:
+- **resetting every camera to factory settings** ("Any device that was used in AXIS Companion Classic must be hard reset")
+- cameras with **AXIS OS 8.40 or newer**, where Classic works with 5.50 or newer
+- a **My Axis account and an internet connection** to set up and manage the system
 
-For a home user with older cameras and a NAS, that means new storage, possibly new cameras and a cloud dependency. Staying on Companion Classic (version 3) avoids all of that. This guide keeps the phone app working on the home network (or remotely over a VPN).
+For a home user with older cameras and a NAS, that means buying new storage, possibly new cameras and relying on Axis's online services. Staying on Companion Classic avoids all of that. This guide keeps the phone app working at home, and from anywhere through a VPN.
 
 ## What you get
-- The Android app shows **"Local site – N cameras"** and live view works after you enter the site password.
-- **Home network, or remotely over a VPN.** Axis's own remote access ended with the cloud shutdown, but a VPN or Tailscale gets you onto the home network from anywhere. See [Remote access](#remote-access-over-a-vpn-or-tailscale).
-- The app talks to the cameras over **plain HTTP on port 80**, not HTTPS.
-- No camera limit found in the app's code (tested with 13 cameras).
+- The Android app shows **"Local site – N cameras"**. Live video works once you enter the site password.
+- **It works at home, and away from home through a VPN.** Axis's own way of viewing from outside the home has stopped, but a VPN such as Tailscale connects your phone to your home network from anywhere. See [Viewing your cameras away from home](#viewing-your-cameras-away-from-home).
+- The app connects to the cameras over **plain HTTP on port 80**. This isn't encrypted (it's not HTTPS).
+- I found no limit on the number of cameras in the app's code. I've tested it with 13.
 
 ## Key facts about the Android app
-- Package: `com.axis.acc` (AXIS Companion Classic). Tested with version **6.0.1** on a Pixel 9 running Android 17. Version 5.1.17 also has the import.
-- The phone keeps the site in a private database. **Android backup doesn't include it** (the app turns backup off). Clearing storage or uninstalling deletes it for good.
-- The phone app can't log in or create sites any more. The `.accs` import is the only way to add a site.
+- The app is AXIS Companion Classic (package name `com.axis.acc`). I tested version **6.0.1** on a Pixel 9 with Android 17. The older version 5.1.17 can also load the file.
+- The app keeps your cameras in its own private storage. **Android's backup doesn't save it**, because the app opts out of backups. Clearing the app's storage or uninstalling the app deletes your cameras for good.
+- The app can no longer sign in or set up new sites. Loading a `.accs` file is the only way to add cameras.
 
-## The `.accs` file format
-The import screen is `com.axis.acc/.LocalSiteImportActivity`. The file is plain text:
-- Line 1 is `1.0`.
-- Every other line is one camera: `IP:port;video source;serial number;name`
-- Names must not contain `;`.
-- Save as **UTF-8 without a BOM**. With a BOM the app can't read the `1.0` line.
+## The `.accs` file
+The file is plain text:
+- The first line is `1.0`.
+- Every other line is one camera: `IP address:port;video source;serial number;name`
+- Names mustn't contain `;`.
+- Save it as **UTF-8 without a BOM**. A BOM is an invisible marker that some editors add to the start of a file, and the app can't read the file if it's there. In Notepad, choose "UTF-8", not "UTF-8 with BOM".
 
-See [example.accs](example.accs):
+Example ([example.accs](example.accs)):
 
 ```
 1.0
@@ -78,71 +80,71 @@ See [example.accs](example.accs):
 192.168.1.21:80;0;ACCC8E000002;Driveway
 ```
 
-- **Video source** is `0` for a normal single-sensor camera.
-- **Serial number** is the camera's MAC address without separators (on the label and in the camera's web page).
-- A hostname works in place of the IP. IPv6 addresses don't, because the app splits the address on `:`.
-- The `:port` part is required.
-- Windows line endings (CRLF) are fine.
+- **Video source** is `0` for an ordinary camera with one lens.
+- **Serial number** is the camera's MAC address without the colons or dashes. It's on the camera's label and on the camera's web page.
+- You can use a hostname instead of an IP address. IPv6 addresses don't work, because the app splits the address at the `:`.
+- The `:port` part must be there.
+- Windows line endings are fine.
 
-### What the app does with a bad file
-- A camera line with the wrong number of fields, no `:port` or a port that isn't a number is skipped with no message.
-- If no camera lines are usable, the app shows "There are no cameras to import."
-- If the first line isn't `1.0` or `2.0`, or the app can't read the file, it shows "Can't open the file."
-- Importing the same file twice creates a second site. The app doesn't check for duplicates.
+### What happens if the file has mistakes
+- A camera line with the wrong number of parts, no `:port` or a port that isn't a number is skipped without any warning.
+- If none of the camera lines can be used, the app says "There are no cameras to import."
+- If the first line isn't `1.0` or `2.0`, or the app can't read the file, it says "Can't open the file."
+- Loading the same file twice gives you two copies of the site. The app doesn't check.
 
-### Version 2.0 format
-The app also reads a second layout. Each line has exactly 6 fields:
+### The older 2.0 layout
+The app also reads a second layout. Each line has exactly 6 parts:
 
 ```
 2.0
 Camera;192.168.1.20:80;0;ACCC8E000001;Front door;No RVP link
 ```
 
-- The first field must be `Camera`. The app skips lines for other device types.
-- The last field must be `No RVP link`. The app skips cameras that have a remote-access link.
+- The first part must be `Camera`. Lines for other kinds of device are skipped.
+- The last part must be `No RVP link`. Cameras that were set up for Axis's remote access are skipped.
 
-Older exports may use this layout. Version `1.0` is simpler for new files.
+Older exported files may use this layout. For a new file, `1.0` is simpler.
 
 ## Making the file
 
-### From the Windows desktop app (easiest)
-If AXIS Companion Classic still works on a Windows PC, it has your camera list in:
+### From the Windows app (easiest)
+If AXIS Companion Classic still works on a Windows PC, your camera list is in this file:
 
 `C:\ProgramData\Axis Communications\AXIS Companion\ApplicationSiteSettings.xml`
 
-Run [make_accs.py](make_accs.py) on that PC (Python 3, no extra packages):
+Run [make_accs.py](make_accs.py) on that PC. You need Python 3 and nothing else:
 
 ```
 python make_accs.py
 ```
 
-It writes `site.accs` in the current folder. You can pass a different input or output file:
+It creates `site.accs` in the folder you run it from. You can also choose which file to read and what to call the new one:
 
 ```
 python make_accs.py path\to\ApplicationSiteSettings.xml mysite.accs
 ```
 
-- **If the desktop app has several sites,** the script writes one file per site, named after the site (for example `Home.accs`). It ignores the output file name in that case and skips sites with no cameras.
-- **The script reads the local camera list (`CameraList`),** the one the desktop app shows. The same XML also holds a cloud copy (`InternetSite > Cameras`). Since the cloud shutdown that copy can be out of date. Mine still listed 4 removed cameras and was missing a new one. Don't switch the script to the cloud list.
+- **If the Windows app has more than one site,** the script makes one file per site, named after the site (for example `Home.accs`). In that case it ignores the name you gave, and it skips sites with no cameras.
+- **The script uses the camera list the Windows app shows** (`CameraList`). The same file also holds an old copy from Axis's online service (`InternetSite > Cameras`). Since the service closed, that copy can be out of date. Mine still listed 4 cameras I'd removed and was missing a new one. Don't change the script to use it.
 
-Don't share `ApplicationSettings.xml` from the same folder. It holds your (encrypted) cloud login token.
+Don't share `ApplicationSettings.xml` from the same folder. It holds your (encrypted) login for Axis's old online service.
 
-### By hand
-Write the file in a text editor using the format above. Find each camera's IP and serial in your router or the camera's web page.
+### Writing it yourself
+Use a text editor and the layout above. You can find each camera's IP address and serial number in your router or on the camera's web page.
 
-## Importing the file on the phone
+## Loading the file on the phone
 
-### Option A: phone only (not tested)
+### Option A: on the phone only (not tested)
 1. Put the `.accs` file in the phone's **Downloads** folder.
 2. Open the Files app, tap the file and choose **AXIS Companion Classic** under "Open with".
 3. Open the app, tap "Local site" and enter the site password.
 
-### Option B: from a PC with adb (tested on a Pixel 9, Android 17)
-You need [Android platform-tools](https://developer.android.com/tools/releases/platform-tools) and USB debugging turned on.
+### Option B: from a PC with adb (tested on a Pixel 9 with Android 17)
+adb (Android Debug Bridge) is Google's free tool for controlling an Android phone from a PC over USB. Download [Android platform-tools](https://developer.android.com/tools/releases/platform-tools) and turn on USB debugging on the phone.
 
-Always pass `-s <serial>` so commands go to the right device.
+Always include `-s <serial>` so the command goes to the right phone.
 
-1. Find the phone's serial:
+1. Find the phone's serial number:
    ```
    adb devices -l
    ```
@@ -150,62 +152,62 @@ Always pass `-s <serial>` so commands go to the right device.
    ```
    adb -s <serial> push site.accs /sdcard/Download/site.accs
    ```
-3. Open a shell on the phone:
+3. Open a command line on the phone:
    ```
    adb -s <serial> shell
    ```
-4. Find the file's media ID and note the `_id` number:
+4. Find the file's ID number and write down the `_id` value:
    ```
    content query --uri content://media/external/file --projection _id:_data --where "_data LIKE '%site.accs'"
    ```
-   On the Pixel, Android had already indexed the pushed file, so this returned a row straight away. If you get "No result found", give the phone a moment and try again. I haven't tested other phones.
+   On my Pixel this found the file straight away. If you get "No result found", wait a moment and try again. I haven't tried other phones.
 
-   Run this inside the phone shell, as shown. Typed straight into Windows PowerShell as `adb shell "..."`, the quotes get mangled.
-5. Open it in the app's import screen (replace `<ID>`):
+   Type this on the phone's command line, as shown. If you type it straight into Windows PowerShell as `adb shell "..."`, PowerShell breaks the quote marks.
+5. Open the file in the app (replace `<ID>` with the number):
    ```
    am start -a android.intent.action.VIEW -d content://media/external/file/<ID> -t application/octet-stream --grant-read-uri-permission -n com.axis.acc/.LocalSiteImportActivity
    ```
-6. Type `exit`, open the app, tap **Local site** and enter the site password.
+6. Type `exit`. Open the app, tap **Local site** and enter the site password.
 
-### After importing
-- **Site password:** the import doesn't ask for or check the password. The app asks the first time you tap the site, then remembers it. It's the site password from the desktop app, the one it set on the cameras.
-- **Getting back to the Sites list:** with only one site and a saved password, the app skips the Sites list and opens the cameras directly. Press Back to reach the Sites list.
-- **Importing again:** delete the old site first (long-press it in the Sites list), or you'll get two copies.
+### After loading the file
+- **Site password:** loading the file doesn't ask for the password or check it. The app asks the first time you tap the site, then remembers it. It's the password you chose when you first set up the site in the Windows app.
+- **Getting back to the list of sites:** if you only have one site and the password is saved, the app goes straight to the cameras. Press Back to see the list of sites.
+- **Loading the file again:** delete the old site first (press and hold it in the list of sites), or you'll end up with two copies.
 
-## Windows desktop app
-The Windows app keeps its site in `C:\ProgramData\Axis Communications\AXIS Companion\ApplicationSiteSettings.xml`, so reinstalling the phone app doesn't affect it. If you lose the site on Windows too, you don't need to rebuild those XML files by hand.
+## Windows app
+The Windows app keeps its cameras in `C:\ProgramData\Axis Communications\AXIS Companion\ApplicationSiteSettings.xml`, so reinstalling the phone app doesn't affect it. If you lose your cameras on Windows too, you don't need to rebuild that file by hand.
 
-The desktop app (checked in version 3.80) has its own **Import site** and **Export site** commands. They use the same `.accs` format ("AXIS Companion Classic Site (*.accs)"), so the [example.accs](example.accs) layout and the file from [make_accs.py](make_accs.py) should work for both apps.
+The Windows app (I checked version 3.80) has its own **Import site** and **Export site** options. They use the same `.accs` file ("AXIS Companion Classic Site (*.accs)"), so the [example.accs](example.accs) layout and the file from [make_accs.py](make_accs.py) should work in both apps.
 
-The login screen still shows **Create new site** and **Import site** links under the LOG IN button, so the desktop app looks able to set up sites without the cloud. Neither has been tested since the shutdown.
+The login screen still has **Create new site** and **Import site** links under the LOG IN button, so the Windows app looks able to set up sites without Axis's online service. I haven't tested either since the service closed.
 
-- **Import site** creates a site from a `.accs` file. Not tested yet.
-- **Export site** writes a `.accs` file from a working site. Use it to make a file for the phone or a spare copy. The app refuses to export a site that has a remote (tunnelled) camera.
-- **Back up** `C:\ProgramData\Axis Communications\AXIS Companion\` before trying either.
+- **Import site** sets up a site from a `.accs` file. Not tested yet.
+- **Export site** saves a working site as a `.accs` file. Use it to make a file for the phone or a spare copy. It won't export a site with a camera that was set up for Axis's remote access.
+- **Back up** the `C:\ProgramData\Axis Communications\AXIS Companion\` folder before trying either.
 
 ## The site password
-The site password isn't stored in the `.accs` file or in the Windows XML files. It lives on the cameras:
-- When you create a site, AXIS Companion Classic adds a user called **`ACCAdmin`** to each camera, with the site password as its password.
-- The apps sign in to each camera as `ACCAdmin` with whatever password you type. That's why the import never asks for it; the app asks the first time you open the site.
-- You can check the password by opening a camera's web page and signing in as `ACCAdmin`. If the site has no password, the app uses `pass`.
-- **If you lose the site password, the cameras must be reset to factory defaults.** Keep it in a password manager.
+The site password isn't in the `.accs` file or in the Windows app's files. It's kept on the cameras:
+- When you set up a site, AXIS Companion Classic adds a user called **`ACCAdmin`** to each camera, with the site password as its password.
+- The apps log in to each camera as `ACCAdmin` with the password you type. That's why loading the file never asks for it: the app asks the first time you open the site.
+- To check the password, open a camera's web page and log in as `ACCAdmin`. If the site has no password, the app uses `pass`.
+- **If you lose the site password, you'll have to reset every camera to factory settings.** Keep it in a password manager.
 
-The password doesn't encrypt or unlock any of the files. It's only the camera login. The apps can remember it so you don't retype it:
-- **Windows:** with "Remember password" ticked, it's saved in `%LOCALAPPDATA%\Axis Communications\AXIS Companion\UserSiteSettings.xml`, encrypted with Windows DPAPI. Only the same Windows user on the same PC can read it, so copying the file to another PC doesn't carry the password over.
-- **Android:** it's saved in the app's private storage and lost if you clear storage.
+The password doesn't unlock or decrypt any files. It's only the login for the cameras. The apps can remember it so you don't have to type it each time:
+- **Windows:** if "Remember password" is ticked, it's saved in `%LOCALAPPDATA%\Axis Communications\AXIS Companion\UserSiteSettings.xml`. It's encrypted with Windows' built-in protection (DPAPI), so only the same Windows user on the same PC can read it. Copying the file to another PC won't bring the password with it.
+- **Android:** it's saved in the app's private storage, and lost if you clear the app's storage.
 
-## Remote access over a VPN or Tailscale
-The imported site connects straight to the cameras' local IP addresses. If the phone can reach those addresses, the app works, wherever you are. Any tunnel that puts the phone on your home network will do:
-- **Tailscale:** run a [subnet router](https://tailscale.com/kb/1019/subnets) on an always-on device at home (a NAS, Raspberry Pi or PC) and advertise the camera subnet, e.g. `192.168.1.0/24`. Approve the route in the Tailscale admin console and turn on the Tailscale app on the phone. The cameras can't run Tailscale themselves, so the subnet router is needed.
-- **WireGuard or OpenVPN:** many routers and NAS boxes have a VPN server built in. Make sure the camera subnet is included in the phone's allowed IPs or routes.
-- **ZeroTier** or similar: same idea; route the camera subnet through a device at home.
+## Viewing your cameras away from home
+The app connects straight to each camera's address on your home network. If your phone can reach those addresses, the app works wherever you are. A VPN does this: it connects your phone to your home network over the internet. Any of these will work:
+- **Tailscale:** set up a [subnet router](https://tailscale.com/kb/1019/subnets) on something at home that's always on (a NAS, Raspberry Pi or PC). Tell it to share your home network's address range, for example `192.168.1.0/24`. Approve this in the Tailscale admin page, then turn on Tailscale on the phone. The cameras can't run Tailscale themselves, which is why you need the subnet router.
+- **WireGuard or OpenVPN:** many routers and NAS boxes have a VPN server built in. Make sure it gives the phone access to the cameras' address range.
+- **ZeroTier** or similar: the same idea. Route the cameras' address range through a device at home.
 
-Notes:
-- Your home subnet must not clash with the network the phone is on (e.g. both `192.168.1.x`). If it does, change the home subnet or use a less common one.
-- **Don't port-forward the cameras to the internet instead.** The app uses plain HTTP, so the password and video would cross the internet unencrypted. A VPN encrypts everything inside the tunnel.
+Things to watch:
+- Your home network and the network the phone is on mustn't use the same address range (for example, both `192.168.1.x`). If they do, change your home network to a less common range.
+- **Don't open ports on your router to reach the cameras directly.** The app doesn't encrypt anything, so your password and video would travel across the internet for anyone to see. A VPN encrypts everything.
 
 ## If the app disappears from the Play Store
-Save a copy of the installed app now while you still have it. On Play Store installs it's split into several APK files that must be installed together:
+Save a copy of the app now, while it's still on your phone. Apps installed from the Play Store come as several APK files that have to be installed together:
 
 ```
 adb -s <serial> shell pm path com.axis.acc
@@ -213,53 +215,53 @@ adb -s <serial> pull <each path listed>
 adb -s <serial> install-multiple base.apk split_config.*.apk
 ```
 
-Notes:
-- 64-bit phones (such as Pixels) need the `arm64_v8a` split. Older 32-bit tablets need `armeabi_v7a`. A copy from one won't install on the other.
-- APKPure lists older versions. Its 6.0.1 download only had the 64-bit split and its 5.1.17 download only had the 32-bit split.
-- **Don't install version 1.1.x on a phone or tablet.** That's the Android TV app (NVIDIA SHIELD). Its internal version number is higher than 6.0.1's, so Android treats it as an update and replaces the working phone app.
-- All the builds I checked are signed with the same Axis certificate (SHA-256 starts `59FA96F7FAA29C4D`). If Android reports a different signature, the copy came from somewhere else.
+Things to know:
+- 64-bit phones (such as Pixels) need the `arm64_v8a` file. Older 32-bit tablets need `armeabi_v7a`. A copy from one won't install on the other.
+- The APKPure website has older versions. Its 6.0.1 download only had the 64-bit file, and its 5.1.17 download only had the 32-bit file.
+- **Don't install version 1.1.x on a phone or tablet.** That's the Android TV version (for the NVIDIA SHIELD). Android sees it as newer than 6.0.1 and replaces your working phone app with it.
+- Every version I checked is signed with the same Axis certificate (its SHA-256 fingerprint starts `59FA96F7FAA29C4D`). If Android says the signature is different, the copy didn't come from Axis.
 
-## What Axis removed in 6.0
-Compared with 5.1.17, version 6.0.1 drops push notifications, answering door station calls, Firebase crash reporting and analytics, Google Sign-In and the "What's new" screen. All of them depended on cloud services. The `.accs` import and local live view are still there.
+## What Axis removed in version 6.0
+Compared with 5.1.17, version 6.0.1 no longer has notifications, answering calls from door stations, crash reporting, Google sign-in or the "What's new" screen. They all relied on online services. Loading a `.accs` file and watching live video still work.
 
 ## Things that don't work
 - **`adb backup`:** the app blocks backups.
-- **Folders under `Android/data/com.axis.acc` shown by some file managers:** they weren't real on my phone.
-- **Opening the `.accs` file from `Android/data/com.axis.acc/files`:** the app says "Can't open the file". If adb created that folder, the folder belongs to adb, and the app can't read it. Use Downloads.
+- **Folders under `Android/data/com.axis.acc` that some file managers show:** on my phone they didn't really exist.
+- **Opening the `.accs` file from `Android/data/com.axis.acc/files`:** the app says "Can't open the file". If adb created that folder, adb owns it and the app can't read it. Use the Downloads folder instead.
 
-  As a precaution, delete the folder afterwards: `adb -s <serial> shell rm -rf /sdcard/Android/data/com.axis.acc`. The app recreates it when it needs it. I haven't confirmed that leaving it causes problems.
-- **Copying the site from another device:** reading another app's private data needs root.
+  To be safe, delete the folder afterwards: `adb -s <serial> shell rm -rf /sdcard/Android/data/com.axis.acc`. The app makes it again when it needs it. I don't know for certain that leaving it causes problems.
+- **Copying the site from another phone or tablet:** you can't read another app's private storage without rooting the device.
 
-## How the format was found
-I pulled the installed APK with adb and decompiled it with [jadx](https://github.com/skylot/jadx) to read `LocalSiteImportActivity`. No Axis code is included here.
+## How I worked out the file layout
+I copied the app from my phone with adb and turned it back into readable code with [jadx](https://github.com/skylot/jadx). The part that loads the file is called `LocalSiteImportActivity`. None of Axis's code is included here.
 
 ## FAQ
-**My AXIS Companion Classic site disappeared from the Android app. Can I get it back?**
-Yes. Clearing storage or reinstalling deletes the site from the phone, and the cloud can't restore it any more. Import it again from a `.accs` file as described above.
+**My cameras disappeared from the AXIS Companion Classic Android app. Can I get them back?**
+Yes. Clearing the app's storage or reinstalling it deletes them from the phone, and Axis's online service can't restore them any more. Load them again from a `.accs` file as described above.
 
 **The app says "Can't create site". What can I do?**
-The app no longer creates sites. Importing a `.accs` file is the only way to add one.
+The app can't set up new sites any more. Loading a `.accs` file is the only way to add one.
 
-**Can I keep recording to a NAS after the AXIS Companion cloud shutdown?**
-The cameras keep recording to the NAS on their own; that's set on each camera. What stops is the cloud login in the app. Importing a local site gets live view on the phone working again. AXIS Camera Station Edge doesn't list NAS recording.
+**Can I keep recording to my NAS now Axis's online service has closed?**
+Yes. Recording to the NAS is set up on each camera, so the cameras carry on by themselves. Only the app's online login stopped working. Loading the file gets live video on the phone working again. AXIS Camera Station Edge can't record to a NAS.
 
-**Do I need an Axis account or internet access?**
-No. The imported site talks directly to the cameras on your network.
+**Do I need an Axis account or an internet connection?**
+No. The app connects straight to the cameras on your home network.
 
-**Can I view my cameras away from home?**
-Yes, over a VPN or Tailscale. See [Remote access](#remote-access-over-a-vpn-or-tailscale).
+**Can I watch my cameras away from home?**
+Yes, through a VPN such as Tailscale. See [Viewing your cameras away from home](#viewing-your-cameras-away-from-home).
 
-**Does this work on iPhone?**
-Not tested. This guide only covers Android.
+**Does this work on an iPhone?**
+I haven't tested it. This guide only covers Android.
 
 **What is the site password?**
-The password of the `ACCAdmin` user that AXIS Companion Classic created on each camera. It isn't in the `.accs` file; the app asks the first time you open the site. See [The site password](#the-site-password).
+It's the password of the `ACCAdmin` user that AXIS Companion Classic added to each camera. It isn't in the `.accs` file. The app asks for it the first time you open the site. See [The site password](#the-site-password).
 
 **Does the same file work in the Windows app?**
-It should. The Windows app has Import site and Export site commands that use the same `.accs` format. See [Windows desktop app](#windows-desktop-app).
+It should. The Windows app has Import site and Export site options that use the same `.accs` file. See [Windows app](#windows-app).
 
 ## Disclaimer
-Not affiliated with or endorsed by Axis Communications. AXIS, AXIS Companion and AXIS Camera Station are trademarks of Axis AB. Use at your own risk. This only uses features already in the app.
+This isn't connected to or approved by Axis Communications. AXIS, AXIS Companion and AXIS Camera Station are trademarks of Axis AB. Use this at your own risk. It only uses features that are already in the app.
 
 ## Licence
-[MIT](LICENSE). Free to use, change and share, including the guide.
+[MIT](LICENSE). You're free to use, change and share it, including this guide.
