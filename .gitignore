@@ -1,0 +1,7 @@
+*.apk
+*.xapk
+*.exe
+*.zip
+ApplicationSettings.xml
+ApplicationSiteSettings.xml*
+*password*
